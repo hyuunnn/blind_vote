@@ -1,45 +1,26 @@
-<!DOCTYPE html>
-<html lang="ko">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>투표 결과</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-</head>
+{% block title %}투표 결과{% endblock %}
 
-<body>
-    <div class="container mt-5">
-        <h2>투표 결과</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}" role="alert">
-            {{ message }}
-        </div>
+{% block content %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>후보</th>
+            {% for role in roles %}
+            <th>{{ role }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for candidate, votes in candidates.items() %}
+        <tr>
+            <td>{{ candidate }}</td>
+            {% for _, count in votes.items() %}
+            <td>{{ count }}</td>
+            {% endfor %}
+        </tr>
         {% endfor %}
-        {% endif %}
-        {% endwith %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>후보</th>
-                    {% for role in roles %}
-                    <th>{{ role }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for candidate, votes in candidates.items() %}
-                <tr>
-                    <td>{{ candidate }}</td>
-                    {% for _, count in votes.items() %}
-                    <td>{{ count }}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</body>
-
-</html>
+    </tbody>
+</table>
+{% endblock %}
