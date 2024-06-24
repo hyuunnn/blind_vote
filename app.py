@@ -43,19 +43,6 @@ def index():
         return redirect(url_for("login"))
 
 
-def is_all_roles_selected(request_form):
-    missing_roles = [role for role in roles if not request_form.get(role)]
-    return not bool(missing_roles)
-
-
-def is_candidates_valid(request_form):
-    for role in roles:
-        selected_candidate = request_form.get(role)
-        if selected_candidate not in candidates:
-            return False
-    return True
-
-
 @app.route("/vote", methods=["GET", "POST"])
 @login_required
 def vote():
@@ -64,17 +51,10 @@ def vote():
         return redirect(url_for("index"))
 
     if request.method == "POST":
-        if not is_all_roles_selected(request.form):
-            flash("모든 역할에 대해 선택하지 않았습니다.", "danger")
-            return redirect(url_for("vote"))
-
-        if not is_candidates_valid(request.form):
-            flash("선택한 후보가 유효하지 않습니다.", "danger")
-            return redirect(url_for("vote"))
-
         for role in roles:
             selected_candidate = request.form.get(role)
-            candidates[selected_candidate][role] += 1
+            if selected_candidate:
+                candidates[selected_candidate][role] += 1
 
         current_user.is_voted = True
         db.session.commit()
