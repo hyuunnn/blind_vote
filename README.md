@@ -3,7 +3,7 @@
 ## Usage
 
 ```python
-# app.py에 있는 roles, names 수정
+# app.py에 있는 roles, names 상황에 맞게 수정
 roles = ["회장", "부회장", "총무"]
 names = [
     "Alice",
