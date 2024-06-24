@@ -121,23 +121,10 @@ def logout():
 
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--reset-votes",
-        "-r",
-        action="store_true",
-        help="모든 사용자의 투표 상태를 초기화합니다.",
-    )
-    args = parser.parse_args()
-
-    if args.reset_votes:
-        with app.app_context():
-            users = User.query.all()
-            for user in users:
-                user.is_voted = False
-            db.session.commit()
-        print("[*] 모든 사용자의 투표 상태가 초기화되었습니다.")
+    with app.app_context():
+        users = User.query.all()
+        for user in users:
+            user.is_voted = False
+        db.session.commit()
 
     app.run(host="0.0.0.0", port=5000)
