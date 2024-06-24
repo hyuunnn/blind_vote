@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>투표하기</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2>투표하기</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('vote') }}" method="post">
+            {% for role in roles %}
+            <div class="form-group">
+                <label for="{{ role }}">{{ role }}</label>
+                <select class="form-control" id="{{ role }}" name="{{ role }}">
+                    <option value="">선택하세요</option>
+                    {% for name in names %}
+                    <option value="{{ name }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">투표하기</button>
+        </form>
+    </div>
+</body>
+
+</html>
