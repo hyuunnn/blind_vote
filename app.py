@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, flash
+from flask import Flask, redirect, url_for, render_template, request, flash, send_file
 from flask_login import (
     LoginManager,
     login_user,
@@ -9,6 +9,11 @@ from flask_login import (
 from models import db, User
 from forms import LoginForm
 
+import os
+import io
+import binascii
+import csv
+
 # roles, names만 수정하면 됩니다.
 roles = ["회장", "부회장", "총무"]
 names = [
@@ -17,7 +22,6 @@ names = [
     "Charlie",
 ]
 candidates = {name: {role: 0 for role in roles} for name in names}
-
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -30,6 +34,17 @@ login_manager.init_app(app)  # LoginManager 연결
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+
+def generate_key():
+    return binascii.hexlify(os.urandom(30)).decode("ascii")
+
+
+def reset_votes():
+    users = User.query.all()
+    for user in users:
+        user.is_voted = False
+    db.session.commit()
 
 
 @app.route("/")
@@ -100,11 +115,58 @@ def logout():
     return redirect(url_for("index"))
 
 
+RESET_PATH = generate_key()
+VOTE_STATUS_PATH = generate_key()
+VOTE_EXPORT_PATH = generate_key()
+
+
+@app.route(f"/{RESET_PATH}")
+@login_required
+def reset():
+    reset_votes()
+    for name in candidates:
+        for role in candidates[name]:
+            candidates[name][role] = 0
+
+    flash("투표가 초기화되었습니다.", "success")
+    return redirect(url_for("index"))
+
+
+@app.route(f"/{VOTE_STATUS_PATH}")
+@login_required
+def vote_status():
+    voted_users = User.query.filter_by(is_voted=True).all()
+    not_voted_users = User.query.filter_by(is_voted=False).all()
+    return render_template(
+        "vote_status.html", voted_users=voted_users, not_voted_users=not_voted_users
+    )
+
+
+@app.route(f"/{VOTE_EXPORT_PATH}")
+@login_required
+def vote_export():
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Role", "이름", "투표 수"])
+    for name, roles_votes in candidates.items():
+        for role, votes in roles_votes.items():
+            writer.writerow([role, name, votes])
+
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode("utf-8-sig")),
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="vote_result.csv",
+    )
+
+
 if __name__ == "__main__":
     with app.app_context():
-        users = User.query.all()
-        for user in users:
-            user.is_voted = False
-        db.session.commit()
+        reset_votes()
+
+    print(f"RESET_PATH: {RESET_PATH}")
+    print(f"VOTE_STATUS_PATH: {VOTE_STATUS_PATH}")
+    print(f"VOTE_EXPORT_PATH: {VOTE_EXPORT_PATH}")
 
     app.run(host="0.0.0.0", port=5000)
