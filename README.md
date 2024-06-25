@@ -3,7 +3,6 @@
 ## Usage
 
 ```python
-# app.py에 있는 roles, names 상황에 맞게 수정
 roles = ["회장", "부회장", "총무"]
 names = [
     "Alice",
@@ -11,6 +10,8 @@ names = [
     "Charlie",
 ]
 ```
+
+`app.py`에 있는 `roles`, `names` 변수의 값을 상황에 맞게 설정합니다.
 
 ```console
 $ pip install -r requirements.txt
