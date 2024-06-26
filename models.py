@@ -7,13 +7,14 @@ import base64
 
 db = SQLAlchemy()
 
+
 # https://github.com/KEEPER31337/Homepage-Back-R2/blob/develop/src/main/java/com/keeper/homepage/global/config/password/PasswordFactory.java#L44
 def check_pbkdf2_sha256(password, password_hash):
     try:
         parts = password_hash.split(":")
         if len(parts) != 4:
             return False
-        
+
         iterations = int(parts[1])
         salt = parts[2]
         hash_value = parts[3]
@@ -23,12 +24,13 @@ def check_pbkdf2_sha256(password, password_hash):
             password.encode("utf-8"),
             salt.encode("utf-8"),
             iterations,
-            dklen=32
+            dklen=32,
         )
         computed_hash = base64.b64encode(hash).decode("utf-8")
         return compare_digest(computed_hash[:32], hash_value)
     except Exception as e:
         return False
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
