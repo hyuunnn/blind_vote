@@ -1,7 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from bcrypt import checkpw
-from hashlib import pbkdf2_hmac
+from hmac import compare_digest
+import hashlib
 import base64
 
 db = SQLAlchemy()
@@ -11,12 +12,20 @@ def check_pbkdf2_sha256(password, password_hash):
         parts = password_hash.split(":")
         if len(parts) != 4:
             return False
+        
         iterations = int(parts[1])
         salt = parts[2]
-        original_hash = parts[3]
-        hash = pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), iterations, dklen=32)
-        hash_base64 = base64.b64encode(hash).decode('utf-8')
-        return hash_base64 == original_hash
+        hash_value = parts[3]
+
+        hash = hashlib.pbkdf2_hmac(
+            "sha256",
+            password.encode("utf-8"),
+            salt.encode("utf-8"),
+            iterations,
+            dklen=32
+        )
+        computed_hash = base64.b64encode(hash).decode("utf-8")
+        return compare_digest(computed_hash[:32], hash_value)
     except Exception as e:
         return False
 
