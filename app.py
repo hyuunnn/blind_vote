@@ -22,6 +22,7 @@ names = [
     "Charlie",
 ]
 candidates = {name: {role: 0 for role in roles} for name in names}
+candidates["기권"] = {role: 0 for role in roles}
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -70,6 +71,8 @@ def vote():
             selected_candidate = request.form.get(role)
             if selected_candidate:
                 candidates[selected_candidate][role] += 1
+            else:
+                candidates["기권"][role] += 1
 
         current_user.is_voted = True
         db.session.commit()
