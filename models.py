@@ -42,7 +42,7 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         try:
             return checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
-        except ValueError as e:
+        except Exception as e:
             return check_pbkdf2_sha256(self.password, password)
         except Exception as e:
             raise Exception(f"비밀번호 확인 중 예외 발생: {str(e)}")
