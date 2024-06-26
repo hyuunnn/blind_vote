@@ -44,8 +44,6 @@ class User(UserMixin, db.Model):
             return checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
         except Exception as e:
             return check_pbkdf2_sha256(password, self.password)
-        except Exception as e:
-            raise Exception(f"비밀번호 확인 중 예외 발생: {str(e)}")
 
     def __repr__(self):
         return f"<User {self.username}>"
