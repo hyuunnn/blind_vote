@@ -15,13 +15,15 @@ cursor.execute(
     )"""
 )
 
-test_accounts = [
-    ("user1", "nickname1", "password1"),
-    ("user2", "nickname2", "password2"),
-    ("user3", "nickname3", "password3"),
-]
+test_accounts = """
+user1,nickname1,password1
+user2,nickname2,password2
+user3,nickname3,password3
+"""
 
-for username, nickname, password in test_accounts:
+test_accounts_list = [line.split(",") for line in test_accounts.strip().split("\n")]
+
+for username, nickname, password in test_accounts_list:
     hashed_password = hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")
     try:
         cursor.execute(
@@ -31,7 +33,9 @@ for username, nickname, password in test_accounts:
             """,
             (username, nickname, hashed_password, False),
         )
-        print(f"Test user '{username}' with nickname '{nickname}' created successfully.")
+        print(
+            f"Test user '{username}' with nickname '{nickname}' created successfully."
+        )
     except sqlite3.IntegrityError:
         print(f"User '{username}' already exists.")
 
