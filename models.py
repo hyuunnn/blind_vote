@@ -7,6 +7,7 @@ import base64
 
 db = SQLAlchemy()
 
+# https://github.com/KEEPER31337/Homepage-Back-R2/blob/develop/src/main/java/com/keeper/homepage/global/config/password/PasswordFactory.java#L44
 def check_pbkdf2_sha256(password, password_hash):
     try:
         parts = password_hash.split(":")
