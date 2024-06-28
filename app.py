@@ -30,6 +30,7 @@ db.init_app(app)  # SQLAlchemy 연결
 
 login_manager = LoginManager()
 login_manager.init_app(app)  # LoginManager 연결
+login_manager.login_view = "login"  # 로그인이 필요한 페이지에 접근했을 때 redirect
 
 
 @login_manager.user_loader
