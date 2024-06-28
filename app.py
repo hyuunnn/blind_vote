@@ -8,6 +8,7 @@ from flask_login import (
 )
 from models import db, User
 from forms import LoginForm
+from threading import Lock
 
 import os
 import io
@@ -23,6 +24,7 @@ names = [
 ]
 candidates = {name: {role: 0 for role in roles} for name in names}
 candidates["기권"] = {role: 0 for role in roles}
+lock = Lock()
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -67,12 +69,13 @@ def vote():
         return redirect(url_for("index"))
 
     if request.method == "POST":
-        for role in roles:
-            selected_candidate = request.form.get(role)
-            if selected_candidate:
-                candidates[selected_candidate][role] += 1
-            else:
-                candidates["기권"][role] += 1
+        with lock:
+            for role in roles:
+                selected_candidate = request.form.get(role)
+                if selected_candidate:
+                    candidates[selected_candidate][role] += 1
+                else:
+                    candidates["기권"][role] += 1
 
         current_user.is_voted = True
         db.session.commit()
@@ -126,10 +129,11 @@ VOTE_EXPORT_PATH = generate_key()
 @app.route(f"/{RESET_PATH}")
 @login_required
 def reset():
-    reset_votes()
-    for name in candidates:
-        for role in candidates[name]:
-            candidates[name][role] = 0
+    with lock:
+        reset_votes()
+        for name in candidates:
+            for role in candidates[name]:
+                candidates[name][role] = 0
 
     flash("투표가 초기화되었습니다.", "success")
     return redirect(url_for("index"))
