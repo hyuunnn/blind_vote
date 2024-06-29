@@ -11,7 +11,7 @@ names = [
 ]
 ```
 
-`app.py`에 있는 `roles`, `names` 변수의 값을 상황에 맞게 설정합니다.
+`config.py`에 있는 `roles`, `names` 변수의 값을 상황에 맞게 설정합니다.
 
 ```console
 $ pip install -r requirements.txt
