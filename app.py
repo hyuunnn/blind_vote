@@ -7,22 +7,13 @@ from flask_login import (
     current_user,
 )
 from models import db, User
-from forms import LoginForm
+from forms import LoginForm, VoteForm
+from config import roles, candidates
 
 import os
 import io
 import binascii
 import csv
-
-# roles, names만 수정하면 됩니다.
-roles = ["회장", "부회장", "총무"]
-names = [
-    "Alice",
-    "Bob",
-    "Charlie",
-]
-candidates = {name: {role: 0 for role in roles} for name in names}
-candidates["기권"] = {role: 0 for role in roles}
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -67,9 +58,10 @@ def vote():
         flash("이미 투표하셨습니다.", "info")
         return redirect(url_for("index"))
 
-    if request.method == "POST":
+    form = VoteForm()
+    if form.validate_on_submit():
         for role in roles:
-            selected_candidate = request.form.get(role)
+            selected_candidate = form.data.get(role)
             if selected_candidate:
                 candidates[selected_candidate][role] += 1
             else:
@@ -80,7 +72,7 @@ def vote():
         flash("투표가 완료되었습니다.", "success")
         return redirect(url_for("index"))
 
-    return render_template("vote.html", roles=roles, names=names)
+    return render_template("vote.html", form=form, roles=roles)
 
 
 @app.route("/result", methods=["GET"])

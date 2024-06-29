@@ -4,17 +4,13 @@
 
 {% block content %}
 <form action="{{ url_for('vote') }}" method="post">
+    {{ form.hidden_tag() }}
     {% for role in roles %}
     <div class="form-group">
-        <label for="{{ role }}">{{ role }}</label>
-        <select class="form-control" id="{{ role }}" name="{{ role }}">
-            <option value="">선택하세요</option>
-            {% for name in names %}
-            <option value="{{ name }}">{{ name }}</option>
-            {% endfor %}
-        </select>
+        {{ form[role].label(class_="form-control-label") }}
+        {{ form[role](class_="form-control") }}
     </div>
     {% endfor %}
-    <button type="submit" class="btn btn-primary">투표하기</button>
+    {{ form.submit(class_="btn btn-primary") }}
 </form>
 {% endblock %}
