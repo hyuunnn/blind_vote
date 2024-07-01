@@ -10,10 +10,9 @@ from models import db, User
 from forms import LoginForm, VoteForm
 from config import roles, candidates
 
-import os
 import io
-import binascii
 import csv
+import secrets
 
 app = Flask(__name__)
 app.config.from_object("config")
@@ -27,10 +26,6 @@ login_manager.login_view = "login"  # 로그인이 필요한 페이지에 접근
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
-
-
-def generate_key():
-    return binascii.hexlify(os.urandom(30)).decode("ascii")
 
 
 def reset_votes():
@@ -111,9 +106,9 @@ def logout():
     return redirect(url_for("index"))
 
 
-RESET_PATH = generate_key()
-VOTE_STATUS_PATH = generate_key()
-VOTE_EXPORT_PATH = generate_key()
+RESET_PATH = secrets.token_hex(30)
+VOTE_STATUS_PATH = secrets.token_hex(30)
+VOTE_EXPORT_PATH = secrets.token_hex(30)
 
 
 @app.route(f"/{RESET_PATH}")
